@@ -1,6 +1,6 @@
-# Class Activation Map
+# Class Activation Map(Pytorch)
 
-The CAM is built based on a modified AlexNet of pytorch.
+Class Activation Map(CAM) was introduced in "[Learning Deep Features for Discriminative Localization" by B. Zhou et al., 2015](https://arxiv.org/abs/1512.04150). In this code, our model is built based on a modified AlexNet with a Global Average Pooling(GAP). 
 # 1. Train + CAM image
 ```
 python3 main.py --training True
