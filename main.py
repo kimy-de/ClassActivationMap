@@ -13,13 +13,14 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description='Class Activation Map')
     parser.add_argument('--img_size', default=128, type=int, help='batch size')
-    parser.add_argument('--epoch', default=20, type=int, help='training epoch')
+    parser.add_argument('--epoch', default=50, type=int, help='training epoch')
     parser.add_argument('--plot_start', default=100, type=int, help='plot_start')
     parser.add_argument('--lr', default=1e-4, type=float, help='learning rate')
     parser.add_argument('--data_name', default='stl10', type=str, help='dataset')
     parser.add_argument('--data_path', default='./', type=str, help='dataset path')
     parser.add_argument('--model_path', default='./cam_model.pth', type=str, help='model path')
-    parser.add_argument('--training', default=True, help='training model')
+    parser.add_argument('--training', default='n', type=str, help='training model')
+    parser.add_argument('--pretrain', default='n', type=str, help='pretrained model')
 
     args = parser.parse_args()
     print(args)
@@ -28,11 +29,15 @@ if __name__ == "__main__":
     data = datasets.Datasets(args.img_size, args.data_path, args.data_name)
     trainset, trainloader = data.create_dataset()
 
-    model = models.m_alexnet()
+    model = models.ModifiedAlexNet()
     model = model.to(device)
-    #print(model)
+    print(model)
 
-    if args.training == True:
+    if args.training == 'y':
+        
+        if args.pretrain == 'y':
+            model.load_state_dict(torch.load(args.model_path))
+            
         criterion = nn.CrossEntropyLoss()
         optimizer = optim.Adam(model.parameters(), lr=args.lr)
 

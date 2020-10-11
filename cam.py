@@ -14,18 +14,20 @@ def cam(model, trainset, img_sample, img_size):
     model.eval()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.features[9].register_forward_hook(get_activation('final'))
-    data, _ = trainset[img_sample]
+    data, label = trainset[img_sample]
     data.unsqueeze_(0)
-    model(data.to(device))
+    _ = model(data.to(device))
     act = activation['final'].squeeze()
+    w = model.fc.weight
+    #print(w.size())
 
     for idx in range(act.size(0)):
         if idx == 0:
-            tmp = act[idx] * act[idx].mean()
+            tmp = act[idx] * w[label][idx]
         else:
-            tmp += act[idx] * act[idx].mean()
+            tmp += act[idx] * w[label][idx]
 
-    normalized_cam = tmp.cpu().numpy()
+    normalized_cam = tmp.detach().cpu().numpy()
     normalized_cam = (normalized_cam - np.min(normalized_cam)) / (np.max(normalized_cam) - np.min(normalized_cam))
 
     cam_img = cv2.resize(np.uint8(normalized_cam * 255), dsize=(img_size, img_size))
