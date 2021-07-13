@@ -16,16 +16,17 @@ def cam(model, trainset, img_sample, img_size):
     model.features[9].register_forward_hook(get_activation('final'))
     data, label = trainset[img_sample]
     data.unsqueeze_(0)
-    _ = model(data.to(device))
+    output = model(data.to(device))
+    _, prediction = torch.max(output, 1)
     act = activation['final'].squeeze()
     w = model.fc.weight
     #print(w.size())
 
     for idx in range(act.size(0)):
         if idx == 0:
-            tmp = act[idx] * w[label][idx]
+            tmp = act[idx] * w[prediction.item()][idx]
         else:
-            tmp += act[idx] * w[label][idx]
+            tmp += act[idx] * w[prediction.item()][idx]
 
     normalized_cam = tmp.detach().cpu().numpy()
     normalized_cam = (normalized_cam - np.min(normalized_cam)) / (np.max(normalized_cam) - np.min(normalized_cam))
